@@ -1,0 +1,25 @@
+[project]
+name = "hero-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.12.14",
+    "alembic>=1.16.4",
+    "asyncpg>=0.30.0",
+    "fastapi>=0.116.0",
+    "greenlet>=3.2.3",
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.10.1",
+    "sqlalchemy>=2.0.41",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+test = [
+    "httpx>=0.28.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-env>=1.1.5",
+    "trio>=0.30.0",
+]
