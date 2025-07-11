@@ -7,7 +7,7 @@
 
 ### Технологии и ЯП 
 - Python 3.12+
-- [Docker](https://hub.docker.com/r/microsoft/mssql-server)
+- [Docker](https://www.docker.com)
 
 ### Установка зависимостей
 - У вас должен быть установлен менеджер зависимостей [uv](https://github.com/astral-sh/uv)
