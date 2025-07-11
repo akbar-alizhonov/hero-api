@@ -16,7 +16,7 @@ uv init
 ```
 
 ```shell
-uv install
+uv sync
 ```
 
 ### Переменные окружения
