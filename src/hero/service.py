@@ -13,7 +13,8 @@ from src.hero.schemas import HeroSchema
 
 class HeroService:
 
-    def __init__(self, repo: HeroRepository) -> None:
+    def __init__(self, session: AsyncSession, repo: HeroRepository) -> None:
+        self.session = session
         self.repo = repo
 
     async def create_hero_or_404(self, name: str) -> list[Hero]:
@@ -42,6 +43,7 @@ class HeroService:
                     new_hero = await self.repo.create(hero.model_dump())
                     res.append(new_hero)
 
+                await self.session.commit()
                 return res
 
     async def get_heroes(self, params: HeroParams, offset: int, limit: int) -> list[Hero]:

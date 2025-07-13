@@ -13,7 +13,7 @@ class HeroRepository:
     async def create(self, hero: dict[str, str | int]) -> Hero:
         new_hero = Hero(**hero)
         self._session.add(new_hero)
-        await self._session.commit()
+        await self._session.flush()
         logger.info(f"Создан новый герой: {new_hero.name}, id: {new_hero.id}")
 
         return new_hero

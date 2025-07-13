@@ -24,7 +24,7 @@ async def create_hero(
         session: Annotated[AsyncSession, Depends(get_async_session)]
 ):
     hero_repo = HeroRepository(session=session)
-    hero_service = HeroService(repo=hero_repo)
+    hero_service = HeroService(session=session, repo=hero_repo)
 
     return await hero_service.create_hero_or_404(name)
 
