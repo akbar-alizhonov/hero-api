@@ -7,7 +7,7 @@
 
 ### Технологии и ЯП 
 - Python 3.12+
-- [Docker](https://hub.docker.com/r/microsoft/mssql-server)
+- [Docker](https://www.docker.com)
 
 ### Установка зависимостей
 - У вас должен быть установлен менеджер зависимостей [uv](https://github.com/astral-sh/uv)
@@ -16,7 +16,7 @@ uv init
 ```
 
 ```shell
-uv install
+uv sync
 ```
 
 ### Переменные окружения
@@ -45,7 +45,7 @@ docker-compose up -d --build
 
 **Обязательные параметры:**
 1. `name` - точное совпадение имени
-2. `intelligence` - фильтр по интеллекту (форматы: 100, >=80, <50)
+2. `intelligence` - фильтр по интеллекту (форматы: 100, >=80, <=50)
 3. `strength` - фильтр по силе
 4. `speed` - фильтр по скорости
 5. `power` - фильтр по мощи
