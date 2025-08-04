@@ -3,7 +3,6 @@ import aiohttp
 from fastapi import HTTPException, status
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import Hero
@@ -19,7 +18,7 @@ class HeroService:
         self.session = session
         self.repo = repo
 
-    async def create_hero_or_404(self, name: str) -> Page[Hero]:
+    async def create_hero_or_404(self, name: str) -> list[Hero]:
         settings = get_settings()
         url = (
             f"{settings.super_hero.SUPER_HERO_API}/"
@@ -27,6 +26,7 @@ class HeroService:
             f"search/{name}"
         )
 
+        # Отправляем запрос к сайту super hero
         async with aiohttp.ClientSession() as session:
             async with session.get(url, ssl=False) as resp:
                 data: dict = await resp.json()
@@ -37,18 +37,17 @@ class HeroService:
                         detail="Герой не найден на superheroapi.com",
                     )
 
+                # Получаем всех героев и создаем этих героев в бд
+                result = []
+
                 for hero_data in data.get("results"):
                     hero = HeroSchema(**hero_data.get("powerstats"))
                     hero.name = hero_data.get("name")
-                    await self.repo.create(hero.model_dump())
+                    new_hero = await self.repo.create(hero.model_dump())
+                    result.append(new_hero)
 
                 await self.session.commit()
-
-                filters = HeroFilter()
-                filters.name = name
-                query = self.repo.build_list_filtered_query(filters)
-
-                return await paginate(self.session, query)
+                return result
 
     async def get_heroes(self, hero_filter: HeroFilter) -> Page[Hero]:
         query = self.repo.build_list_filtered_query(hero_filter)

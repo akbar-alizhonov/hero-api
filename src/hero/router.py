@@ -17,7 +17,7 @@ router = APIRouter(tags=["Hero"], prefix="/hero")
 
 @router.post(
     "/",
-    response_model=Page[HeroSchema],
+    response_model=list[HeroSchema],
     status_code=status.HTTP_200_OK,
     description="Создает новых героев в бд, если они найдены на сайте https://superheroapi.com/"
 )
