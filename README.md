@@ -11,9 +11,6 @@
 
 ### Установка зависимостей
 - У вас должен быть установлен менеджер зависимостей [uv](https://github.com/astral-sh/uv)
-```shell
-uv init
-```
 
 ```shell
 uv sync
