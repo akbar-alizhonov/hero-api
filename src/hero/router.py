@@ -1,13 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi_filter import FilterDepends
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi_pagination import Page
 from starlette import status
 
 from src.config.dependencies import get_async_session
+from src.hero.filters import HeroFilter
 from src.hero.repository import HeroRepository
 from src.hero.schemas import HeroSchema
-from src.hero.params import HeroParams
 from src.hero.service import HeroService
 
 router = APIRouter(tags=["Hero"], prefix="/hero")
@@ -15,23 +17,24 @@ router = APIRouter(tags=["Hero"], prefix="/hero")
 
 @router.post(
     "/",
-    response_model=list[HeroSchema],
+    response_model=Page[HeroSchema],
     status_code=status.HTTP_200_OK,
     description="Создает новых героев в бд, если они найдены на сайте https://superheroapi.com/"
 )
 async def create_hero(
-        name: str,
-        session: Annotated[AsyncSession, Depends(get_async_session)]
+    name: str,
+    session: Annotated[AsyncSession, Depends(get_async_session)]
 ):
     hero_repo = HeroRepository(session=session)
     hero_service = HeroService(session=session, repo=hero_repo)
 
-    return await hero_service.create_hero_or_404(name)
+    heroes = await hero_service.create_hero_or_404(name)
+    return heroes
 
 
 @router.get(
     "/",
-    response_model=list[HeroSchema],
+    response_model=Page[HeroSchema],
     status_code=status.HTTP_200_OK,
     description=(
             "Возвращает всех героев с фильтрами. "
@@ -41,13 +44,17 @@ async def create_hero(
     )
 )
 async def get_heroes(
-        params: Annotated[HeroParams, Depends()],
-        session: Annotated[AsyncSession, Depends(get_async_session)],
-        page: int = Query(1, ge=1, description="Номер страницы"),
-        page_size: int = Query(20, ge=1, le=100, description="Количество элементов на странице")
+    hero_filter: Annotated[HeroFilter, FilterDepends(HeroFilter)],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     hero_repo = HeroRepository(session=session)
-    hero_service = HeroService(repo=hero_repo)
-    offset = (page - 1) * page_size
+    hero_service = HeroService(session=session, repo=hero_repo)
 
-    return await hero_service.get_heroes(params, offset, page_size)
+    result = await hero_service.get_heroes(hero_filter)
+    if not result.items:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Не найдено героев с такими фильтрами"
+        )
+
+    return result

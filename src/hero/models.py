@@ -4,7 +4,7 @@ from src.config.base import Base
 
 
 class Hero(Base):
-    __tablename__ = 'hero'
+    __tablename__ = "hero"
     __table_args__ = {
         "comment": "Таблица с героями и их характеристиками"
     }

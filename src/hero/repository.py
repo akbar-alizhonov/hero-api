@@ -1,10 +1,9 @@
-from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from loguru import logger
 
-from src.hero.schemas import HeroSchema
 from src.hero.models import Hero
-
+from src.hero.filters import HeroFilter
 
 class HeroRepository:
     def __init__(self, session: AsyncSession):
@@ -14,22 +13,15 @@ class HeroRepository:
         new_hero = Hero(**hero)
         self._session.add(new_hero)
         await self._session.flush()
-        logger.info(f"Создан новый герой: {new_hero.name}, id: {new_hero.id}")
 
+        logger.info(f"Создан новый герой: {new_hero.name}, id: {new_hero.id}")
         return new_hero
 
-    async def list(
-            self,
-            filters: list,
-            limit: int,
-            offset: int,
-    ) -> list[Hero]:
-        query = (
-            select(Hero)
-            .where(*filters)
-            .limit(limit)
-            .offset(offset)
-        )
-        res = await self._session.execute(query)
+    @staticmethod
+    def build_list_filtered_query(hero_filter: HeroFilter):
+        """Строит SQLAlchemy запрос с фильтрами"""
+        query = select(Hero)
+        query = hero_filter.filter(query)
+        query = hero_filter.sort(query)
 
-        return res.scalars().all()
+        return query
